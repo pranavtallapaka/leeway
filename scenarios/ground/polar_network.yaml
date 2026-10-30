@@ -1,0 +1,26 @@
+# Small polar-heavy ground station network
+# Two stations at high latitudes for maximum coverage of polar and SSO satellites.
+#
+# Svalbard (Spitsbergen), Norway — high-Arctic site
+#   ~78.2°N, 15.4°E, ~50 m MSL
+#   One of the world's most used Arctic ground stations (near KSAT Svalbard).
+#
+# McMurdo Station, Antarctica — Antarctic site
+#   ~77.8°S, 166.7°E, ~10 m MSL
+#   US Antarctic Program base; hosts ground station infrastructure.
+#
+# A polar LEO satellite in a ~98° sun-synchronous orbit will see both stations
+# on nearly every orbit, giving 12–15 contacts per day with short gaps.
+
+stations:
+  - name: "Svalbard (Arctic)"
+    latitude_deg: 78.2297
+    longitude_deg: 15.4045
+    altitude_m: 50.0
+    min_elevation_deg: 5.0
+
+  - name: "McMurdo (Antarctic)"
+    latitude_deg: -77.8419
+    longitude_deg: 166.6863
+    altitude_m: 10.0
+    min_elevation_deg: 5.0

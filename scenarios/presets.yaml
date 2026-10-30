@@ -1,0 +1,30 @@
+# Leeway preset definitions — single source of truth for the satellite, ground-network,
+# and scenario presets shown in the app sidebar and used by `leeway run`.
+#
+# NORAD IDs verified against CelesTrak GP catalogue (celestrak.org/NORAD/elements/)
+# on 2026-10-30.
+
+satellites:
+  - name: "Sentinel-2A (EO, SSO)"
+    norad_id: 40697
+    description: "ESA MultiSpectral Instrument, 786 km SSO, launched June 2015"
+  - name: "Sentinel-2B (EO, SSO)"
+    norad_id: 42063
+    description: "ESA MultiSpectral Instrument twin, 786 km SSO, launched March 2017"
+  - name: "Landsat 9 (EO, SSO)"
+    norad_id: 49260
+    description: "NASA/USGS OLI-2 + TIRS-2 imager, 705 km SSO, launched September 2021"
+
+ground_networks:
+  - name: "Polar pair (Svalbard + McMurdo)"
+    path: "scenarios/ground/polar_network.yaml"
+  - name: "Single mid-latitude (Purdue)"
+    path: "scenarios/ground/purdue_single.yaml"
+
+scenarios:
+  - name: "EO day — anticipated anomalies only"
+    path: "scenarios/eo_imaging_anticipated.yaml"
+  - name: "EO day — mixed (anticipated + unanticipated)"
+    path: "scenarios/eo_imaging_mixed.yaml"
+  - name: "Sparse coverage — worst case"
+    path: "scenarios/eo_sparse_coverage.yaml"

@@ -1,0 +1,83 @@
+# Scenario 3: Sparse coverage — single mid-latitude ground station, worst case
+#
+# Same EO satellite (Sentinel-2A, SSO at 98.5°) but only one ground station:
+# Purdue University, West Lafayette, Indiana (40.4°N, 86.9°W).
+#
+# Why this is the worst case for Leeway:
+#   - Sentinel-2A is a near-polar SSO orbit. A single mid-latitude station
+#     sees it far less often than the polar pair in Scenarios 1 & 2.
+#   - Gaps between contacts can exceed 90 minutes.
+#   - With an unanticipated anomaly, the spacecraft may safe-hold for several
+#     hours waiting for the next contactable pass PLUS operator turnaround.
+#   - With a contingency plan, the spacecraft resolves anticipated anomalies
+#     immediately, and the round-trip savings are largest here.
+#
+# The unanticipated power anomaly is timed to occur just after a pass ends,
+# maximising the gap cost.
+
+name: eo_sparse_coverage
+description: >
+  Single mid-latitude station (Purdue) — worst-case gap scenario for
+  Sentinel-2A. Shows maximum round-trip savings from contingency plans.
+
+satellite:
+  norad_id: 40697            # Sentinel-2A
+
+ground_stations_file: ground/purdue_single.yaml
+
+time_span:
+  start: "2024-01-10T12:00:00Z"
+  hours: 24
+
+seed: 99
+
+objectives:
+  - id: image_alps
+    kind: image_target
+    duration_s: 120
+    description: "Capture multispectral image over the Alps"
+
+  - id: downlink_batch_1
+    kind: downlink_data
+    duration_s: 300
+    description: "Downlink image batch via Purdue"
+
+  - id: calibration_run
+    kind: calibration
+    duration_s: 240
+    description: "Radiometric calibration over Libya-4 desert target"
+
+anomalies:
+  - id: power_anomaly_1
+    kind: power_anomaly
+    timing:
+      kind: fixed
+      offset_s: 3600       # 1 h in — likely just after a pass ends
+    anticipated: false
+    description: >
+      Solar array current unexpectedly low — possible shadowing fault or
+      cell degradation. No contingency plan covers this; spacecraft must
+      safe-hold and wait for operator diagnosis. With sparse coverage this
+      could mean a 3–6 hour wait before the next usable pass.
+
+  - id: payload_reset_1
+    kind: payload_reset
+    timing:
+      kind: random
+      earliest_s: 21600    # 6 h in
+      latest_s: 64800      # 18 h in
+    anticipated: true
+    description: >
+      MSI instrument reset — anticipated, handled autonomously on board.
+      Even over a sparse network the spacecraft resolves this without
+      waiting for ground.
+
+assumptions:
+  # Longer turnaround for a university station with part-time ops team.
+  ground_turnaround_s: 7200       # 2 hours — realistic for a small ops team
+  command_cycles_per_anomaly:
+    power_anomaly: 2              # diagnose (pass 1) + corrective command (pass 2)
+    payload_reset: 2
+  min_uplink_contact_s: 30
+  min_downlink_contact_s: 120
+  plan_upload_s: 180

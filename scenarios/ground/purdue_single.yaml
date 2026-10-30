@@ -1,0 +1,11 @@
+# Single mid-latitude university ground station
+# Purdue University, West Lafayette, Indiana, USA
+# Approximate coordinates: 40.43°N, 86.91°W, ~185 m MSL
+# Suitable for LEO satellite operations and student ground station work.
+
+stations:
+  - name: "Purdue (West Lafayette)"
+    latitude_deg: 40.4259
+    longitude_deg: -86.9081
+    altitude_m: 185.0
+    min_elevation_deg: 5.0

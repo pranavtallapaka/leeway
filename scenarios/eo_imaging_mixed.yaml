@@ -1,0 +1,89 @@
+# Scenario 2: Earth-observation imaging day — two anticipated + one unanticipated
+#
+# Same satellite and ground network as Scenario 1, but a software fault is
+# added mid-day. Software faults are "unanticipated" — no contingency plan
+# covers them, so the spacecraft must safe-hold and wait for a ground pass,
+# operator diagnosis (ground_turnaround_s), and a fix command uplink.
+#
+# This scenario shows the contrast: anticipated anomalies resolve autonomously
+# in minutes; the unanticipated software fault costs at least one full gap
+# plus operator turnaround time.
+
+name: eo_imaging_mixed
+description: >
+  EO imaging day with two anticipated anomalies and one unanticipated software
+  fault. The software fault forces a ground-intervention cycle, illustrating
+  the round-trip cost that contingency plans eliminate.
+
+satellite:
+  norad_id: 40697            # Sentinel-2A
+
+ground_stations_file: ground/polar_network.yaml
+
+time_span:
+  start: "2024-01-10T12:00:00Z"
+  hours: 24
+
+seed: 42
+
+objectives:
+  - id: image_alps
+    kind: image_target
+    duration_s: 120
+    description: "Capture multispectral image over the Alps"
+
+  - id: image_sahel
+    kind: image_target
+    duration_s: 180
+    description: "Capture multispectral image over the Sahel"
+
+  - id: downlink_batch_1
+    kind: downlink_data
+    duration_s: 600
+    description: "Downlink morning image batch via Svalbard"
+
+  - id: downlink_batch_2
+    kind: downlink_data
+    duration_s: 600
+    description: "Downlink afternoon image batch via McMurdo"
+
+anomalies:
+  - id: payload_reset_1
+    kind: payload_reset
+    timing:
+      kind: random
+      earliest_s: 7200
+      latest_s: 28800
+    anticipated: true
+    description: >
+      MSI instrument thermal reset. Handled autonomously by on-board plan.
+
+  - id: missed_window_1
+    kind: missed_window
+    timing:
+      kind: fixed
+      offset_s: 43200
+    anticipated: true
+    description: >
+      Imaging window missed due to cloud cover. Handled autonomously.
+
+  - id: sw_fault_1
+    kind: software_fault
+    timing:
+      kind: fixed
+      offset_s: 57600     # 16 h into the day
+    anticipated: false
+    description: >
+      Unexpected exception in the on-board scheduler. No contingency plan
+      covers this fault type. Spacecraft enters safe-hold and waits for
+      the next ground pass, operator diagnosis, and a patch uplink.
+
+assumptions:
+  ground_turnaround_s: 3600
+  command_cycles_per_anomaly:
+    payload_reset: 2
+    missed_window: 1
+    software_fault: 3     # diagnose (pass 1) + patch (pass 2) + verify (pass 3)
+  min_uplink_contact_s: 30
+  min_downlink_contact_s: 120
+  plan_upload_s: 180

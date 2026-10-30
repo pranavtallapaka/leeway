@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+
+# uv
+.python-version
+
+# Data cache (Skyfield ephemeris, TLE snapshots, etc.)
+data/cache/
+
+# Streamlit secrets (never commit)
+.streamlit/secrets.toml
+
+# Exported HTML reports
+*.html
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

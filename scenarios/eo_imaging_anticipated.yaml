@@ -1,0 +1,81 @@
+# Scenario 1: Earth-observation imaging day — two anticipated anomalies
+#
+# A typical operational day for an EO satellite (Sentinel-2A, NORAD 40697).
+# Two anomaly types that operations teams routinely plan for are included:
+#   - payload_reset: instrument occasionally needs a cold restart mid-orbit
+#   - missed_window: imaging opportunity lost due to cloud cover or attitude error
+# Both are "anticipated" — contingency plans exist on board to handle them
+# autonomously, without waiting for the next ground pass.
+#
+# Ground network: Svalbard + McMurdo polar pair (very high contact frequency
+# for SSO satellites — up to ~28 contacts/day).
+
+name: eo_imaging_anticipated
+description: >
+  EO imaging day with two anticipated anomalies. Both are covered by
+  on-board contingency plans, so the spacecraft does not need to wait
+  for ground intervention.
+
+satellite:
+  norad_id: 40697            # Sentinel-2A
+
+ground_stations_file: ground/polar_network.yaml
+
+time_span:
+  start: "2024-01-10T12:00:00Z"
+  hours: 24
+
+seed: 42
+
+objectives:
+  - id: image_alps
+    kind: image_target
+    duration_s: 120
+    description: "Capture multispectral image over the Alps"
+
+  - id: image_sahel
+    kind: image_target
+    duration_s: 180
+    description: "Capture multispectral image over the Sahel"
+
+  - id: downlink_batch_1
+    kind: downlink_data
+    duration_s: 600
+    description: "Downlink morning image batch via Svalbard"
+
+  - id: downlink_batch_2
+    kind: downlink_data
+    duration_s: 600
+    description: "Downlink afternoon image batch via McMurdo"
+
+anomalies:
+  - id: payload_reset_1
+    kind: payload_reset
+    timing:
+      kind: random
+      earliest_s: 7200    # 2 h into the day
+      latest_s: 28800     # 8 h into the day
+    anticipated: true
+    description: >
+      MSI instrument thermal reset — occurs occasionally after payload power-on.
+      On-board plan: safe-hold instrument, wait 90 s, power-cycle, resume.
+
+  - id: missed_window_1
+    kind: missed_window
+    timing:
+      kind: fixed
+      offset_s: 43200     # 12 h into the day
+    anticipated: true
+    description: >
+      Imaging window missed due to cloud cover detected by on-board
+      cloud-screening algorithm. Contingency plan: log event, skip to
+      next scheduled target.
+
+assumptions:
+  ground_turnaround_s: 3600       # 1 hour: typical ops team response time
+  command_cycles_per_anomaly:
+    payload_reset: 2              # diagnose (pass 1) + fix command (pass 2)
+    missed_window: 1              # one command to reschedule
+  min_uplink_contact_s: 30        # 30 s minimum to send a short command
+  min_downlink_contact_s: 120     # 2 min minimum to pull anomaly telemetry
+  plan_upload_s: 180              # 3 min to uplink a contingency plan
